@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\DTOs\ServiceDTO;
+use App\Http\Requests\ServiceRequest;
+use App\Interfaces\ServiceServiceInterface;
 use OpenApi\Annotations as OA;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -18,7 +21,12 @@ use Illuminate\Support\Facades\Validator;
  */
 class ServiceController extends Controller
 {
+    private ServiceServiceInterface $serviceService;
 
+    public function __construct(ServiceServiceInterface $serviceService)
+    {
+        $this->serviceService = $serviceService;
+    }
 
     /**
      * @OA\Get(
@@ -48,15 +56,7 @@ class ServiceController extends Controller
     public function index()
     {
         $authorizationHeader = request()->header('Authorization');
-        $apiKey = substr($authorizationHeader, 7);
-        $apiKeysConfig = Config::get('apiFields.api_keys');
-
-        if (!isset($apiKeysConfig[$apiKey])) {
-            return response()->json(['error' => 'Unauthorized. Invalid API key.'], 401);
-        }
-
-        $associatedFields = $apiKeysConfig[$apiKey];
-        $services = Service::all($associatedFields);
+        $services = $this->serviceService->getAllServices($authorizationHeader);
 
         return response()->json(['data' => $services], 200);
     }
@@ -93,23 +93,11 @@ class ServiceController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(ServiceRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:25',
-            'description' => 'required',
-            'price' => 'required|numeric',
-            'is_active' => 'required|boolean',
-            'location' => 'required|max:25',
-            'contact_email' => 'required|email',
-            'contact_phone' => 'required|max:10',
-        ]);
+        $serviceDTO = new ServiceDTO($request->validated());
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
-        $service = Service::create($request->all());
+        $service = $this->serviceService->createService($serviceDTO);
 
         return response()->json(['data' => $service], 201);
     }
