@@ -9,9 +9,13 @@ use Illuminate\Database\Eloquent\Collection;
 class ServiceRepository implements ServiceRepositoryInterface
 {
 
-    public function all(array $fields): Collection
+    public function all($fields, string $sortField, string $sortDirection, int $perPage): Collection
     {
-        return Service::all($fields);
+        $query = Service::select($fields)
+            ->orderBy($sortField, $sortDirection)
+            ->paginate($perPage);
+
+        return $query->getCollection();
     }
 
     public function create(array $data)

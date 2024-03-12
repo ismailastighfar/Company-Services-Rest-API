@@ -16,8 +16,51 @@
                     "Services"
                 ],
                 "summary": "Get a list of services",
-                "description": "Returns a list of services based on the API key",
+                "description": "Returns a list of services based on the API key. You can sort, paginate, and select specific fields.",
                 "operationId": "index",
+                "parameters": [
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Field to sort the results by.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "description": "Sorting direction. 'asc' for ascending, 'desc' for descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "fields",
+                        "in": "query",
+                        "description": "Comma-separated list of fields to be returned in the response.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "csv"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

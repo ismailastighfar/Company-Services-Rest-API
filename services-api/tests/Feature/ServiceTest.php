@@ -10,7 +10,8 @@ use Tests\TestCase;
 class ServiceTest extends TestCase
 {
 
-    public function test_Index()
+
+    public function test_services_list_has_expected_structure()
     {
 
         Service::factory()->count(5)->create();
@@ -33,7 +34,7 @@ class ServiceTest extends TestCase
         ]);
     }
 
-    public function test_Store()
+    public function test_store_new_service_successfully_created()
     {
 
         $apiKey = '3e5d69ea-078e-321f-a742-b7bd6921cb28';
@@ -75,7 +76,7 @@ class ServiceTest extends TestCase
 
 
 
-    public function test_Store_Validation_Errors()
+    public function test_store_new_service_Validation_Errors()
     {
 
         $apiKey = '3e5d69ea-078e-321f-a742-b7bd6921cb28';
@@ -117,7 +118,7 @@ class ServiceTest extends TestCase
 
         $response->assertStatus(401);
 
-        $response->assertJson(['error' => 'Unauthorized. Invalid Authorization header format.']);
+        $response->assertJson(['message' => 'Unauthorized. Invalid Authorization header format.']);
     }
 
 
@@ -130,7 +131,7 @@ class ServiceTest extends TestCase
 
         $response->assertStatus(401);
 
-        $response->assertJson(['error' => 'Unauthorized. Invalid API key.']);
+        $response->assertJson(['message' => 'Unauthorized. Invalid API key.']);
     }
 
 

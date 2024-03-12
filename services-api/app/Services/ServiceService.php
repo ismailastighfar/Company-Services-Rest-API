@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\ServiceDTO;
+use App\Exceptions\ServiceCreationException;
 use App\Interfaces\ServiceRepositoryInterface;
 use App\Interfaces\ServiceServiceInterface;
 use App\Mappers\ServiceMapper;
@@ -20,7 +21,7 @@ class ServiceService implements ServiceServiceInterface
         $this->serviceRepository = $serviceRepository;
         $this->serviceMapper = $serviceMapper;
     }
-    public function getAllServices(string $authorizationHeader): Collection
+    public function getAllServices(string $authorizationHeader,$selectedFields,string $sortField, string $sortDirection,int $perPage): Collection
     {
         $apiKey = substr($authorizationHeader, 7);
         $apiKeysConfig = Config::get('api_fields.api_keys');
@@ -29,13 +30,28 @@ class ServiceService implements ServiceServiceInterface
             throw new InvalidArgumentException();
         }
         $associatedFields = $apiKeysConfig[$apiKey];
-        return $this->serviceRepository->all($associatedFields);
+
+        if(empty($selectedFields)){
+            $result =  $this->serviceRepository->all($associatedFields,$sortField,$sortDirection,$perPage);
+        }else{
+            $selectedFields = explode(',', $selectedFields);
+            $fields = array_intersect($selectedFields,$associatedFields);
+            $result =  $this->serviceRepository->all($fields,$sortField,$sortDirection,$perPage);
+        }
+
+        return $result;
     }
 
+    /**
+     * @throws ServiceCreationException
+     */
     public function createService(ServiceDTO $serviceDTO): ServiceDTO
     {
         $service = $this->serviceMapper->toModel($serviceDTO);
-        $service->save();
+
+        if (!$service->save()) {
+            throw new ServiceCreationException();
+        }
         return $this->serviceMapper::toDTO($service);
     }
 }

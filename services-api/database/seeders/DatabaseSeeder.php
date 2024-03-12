@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call(
+        $this->call([
+            APIKeySeeder::class,
             ServiceSeeder::class,
-            APIKeySeeder::class
-        );
+        ]);
     }
 
 

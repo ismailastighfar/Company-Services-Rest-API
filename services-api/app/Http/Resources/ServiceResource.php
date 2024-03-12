@@ -22,14 +22,24 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ServiceResource extends JsonResource
 {
-
-
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
-            'name' =>$this->name,
-            'description' => $this->description
+            'name' => $this->name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'is_active' => $this->is_active,
+            'location' => $this->location,
+            'contact_email' => $this->contact_email,
+            'contact_phone' => $this->contact_phone,
         ];
+
+        // Filter out null values
+        $filteredData = array_filter($data, function ($value) {
+            return $value !== null;
+        });
+
+        return $filteredData;
     }
 }
