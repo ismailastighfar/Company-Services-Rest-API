@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\APIKey;
+use App\Traits\APIResponseTrait;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckApiKey
 {
+
+    use APIResponseTrait;
+
     public function handle(Request $request, Closure $next): Response
     {
 
@@ -20,7 +24,7 @@ class CheckApiKey
 
         // Check if the Authorization header is present and has the expected format
         if (!$authorizationHeader || !str_starts_with($authorizationHeader, 'Bearer ')) {
-            return response()->unauthorized('Unauthorized. Invalid Authorization header format.');
+            return $this->unauthorized('Unauthorized. Invalid Authorization header format.');
 
         }
 
@@ -32,7 +36,7 @@ class CheckApiKey
 
 
         if (!$this->isValidApiKey($apiKey)) {
-            return response()->unauthorized('Unauthorized. Invalid API key.');
+            return $this->unauthorized('Unauthorized. Invalid API key.');
         }
 
 

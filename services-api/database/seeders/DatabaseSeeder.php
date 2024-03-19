@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             APIKeySeeder::class,
             ServiceSeeder::class,
+            DepartmentSeeder::class,
+            EmployeeSeeder::class,
         ]);
     }
 

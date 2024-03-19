@@ -2,14 +2,18 @@
 
 namespace App\Services;
 
+use App\DTOs\RequestDTO;
 use App\DTOs\ServiceDTO;
 use App\Exceptions\ServiceCreationException;
+use App\Exceptions\UnauthorizedApiKeyException;
 use App\Interfaces\ServiceRepositoryInterface;
 use App\Interfaces\ServiceServiceInterface;
 use App\Mappers\ServiceMapper;
 use http\Exception\InvalidArgumentException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class ServiceService implements ServiceServiceInterface
 {
@@ -21,26 +25,41 @@ class ServiceService implements ServiceServiceInterface
         $this->serviceRepository = $serviceRepository;
         $this->serviceMapper = $serviceMapper;
     }
-    public function getAllServices(string $authorizationHeader,$selectedFields,string $sortField, string $sortDirection,int $perPage): Collection
+
+    /**
+     * @throws UnauthorizedApiKeyException
+     */
+    public function getAllServices(RequestDTO $requestDTO)
     {
-        $apiKey = substr($authorizationHeader, 7);
+        $apiKey = substr($requestDTO->authorizationHeader, 7);
         $apiKeysConfig = Config::get('api_fields.api_keys');
 
         if (!isset($apiKeysConfig[$apiKey])) {
-            throw new InvalidArgumentException();
+            throw new UnauthorizedApiKeyException();
         }
-        $associatedFields = $apiKeysConfig[$apiKey];
+       $associatedFields = $apiKeysConfig[$apiKey];
 
-        if(empty($selectedFields)){
-            $result =  $this->serviceRepository->all($associatedFields,$sortField,$sortDirection,$perPage);
+        if (empty( $requestDTO->selectedFields)) {
+            $requestDTO->selectedFields = $associatedFields;
+        } else {
+            $requestDTO->selectedFields = explode(',',  $requestDTO->selectedFields);
+        }
+
+        $includeRelationships = explode(',', $requestDTO->includeRelationships);
+
+
+
+        if ($includeRelationships){
+          $result =  $this->serviceRepository->allWithRelationships($requestDTO,$includeRelationships,$associatedFields);
         }else{
-            $selectedFields = explode(',', $selectedFields);
-            $fields = array_intersect($selectedFields,$associatedFields);
-            $result =  $this->serviceRepository->all($fields,$sortField,$sortDirection,$perPage);
+            $result =  $this->serviceRepository->all($requestDTO);
         }
 
         return $result;
+
     }
+
+
 
     /**
      * @throws ServiceCreationException

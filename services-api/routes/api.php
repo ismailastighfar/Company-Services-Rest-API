@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,5 +23,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['api_key'])->group(function () {
     Route::get("/services",[ServiceController::class,'index']);
     Route::post("/services",[ServiceController::class,'store']);
+    Route::get("/departments",[DepartmentController::class,'index']);
 });
 

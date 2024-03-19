@@ -10,6 +10,80 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/departments": {
+            "get": {
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Get a list of departments",
+                "description": "Returns a list of departments.",
+                "operationId": "getDepartments",
+                "parameters": [
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Field to sort the results by.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "description": "Sorting direction. 'asc' for ascending, 'desc' for descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Department"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized. Invalid API key",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "error": "Unauthorized. Invalid API key."
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/services": {
             "get": {
                 "tags": [
@@ -54,6 +128,16 @@
                         "name": "fields",
                         "in": "query",
                         "description": "Comma-separated list of fields to be returned in the response.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "csv"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Include the relationships comma seperated",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -153,6 +237,23 @@
     },
     "components": {
         "schemas": {
+            "Department": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "manager": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "Service": {
                 "properties": {
                     "id": {

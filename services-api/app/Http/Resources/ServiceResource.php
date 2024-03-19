@@ -33,7 +33,12 @@ class ServiceResource extends JsonResource
             'location' => $this->location,
             'contact_email' => $this->contact_email,
             'contact_phone' => $this->contact_phone,
+            'department' => new DepartmentResource($this->whenLoaded('department')),
+            'employee' => new EmployeeResource($this->whenLoaded('employee')
+            )
         ];
+
+
 
         // Filter out null values
         $filteredData = array_filter($data, function ($value) {

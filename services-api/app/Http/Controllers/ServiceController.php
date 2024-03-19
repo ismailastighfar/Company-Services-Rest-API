@@ -1,16 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\DTOs\RequestDTO;
 use App\DTOs\ServiceDTO;
 use App\Http\Requests\ServiceRequest;
 use App\Http\Resources\ServiceResource;
 use App\Interfaces\ServiceServiceInterface;
+use App\Traits\APIResponseTrait;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Annotations as OA;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
+use Spatie\DataTransferObject\Exceptions\UnknownProperties;
 
 /**
  * @OA\SecurityScheme(
@@ -23,6 +26,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class ServiceController extends Controller
 {
+    use APIResponseTrait;
     private ServiceServiceInterface $serviceService;
 
     public function __construct(ServiceServiceInterface $serviceService)
@@ -66,6 +70,13 @@ class ServiceController extends Controller
      *         required=false,
      *         @OA\Schema(type="string",format="csv")
      *     ),
+     *          @OA\Parameter(
+     *          name="include",
+     *          in="query",
+     *          description="Include the relationships comma seperated",
+     *          required=false,
+     *         @OA\Schema(type="string",format="csv")
+     *      ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -82,22 +93,16 @@ class ServiceController extends Controller
      *         )
      *     )
      * )
+     * @throws UnknownProperties
      */
 
     public function index()
     {
-        $authorizationHeader = request()->header('Authorization');
-        $sortField = request()->input('sort', 'id');
-        $sortDirection = request()->input('direction', 'asc');
-        $perPage = request()->input('per_page', 10);
-        $selectedFields = request()->input('fields', '');
 
+        $requestData = RequestDTO::fromRequest(request());
+        $services = $this->serviceService->getAllServices($requestData);
 
-        $services = $this->serviceService->getAllServices($authorizationHeader,$selectedFields,$sortField,$sortDirection,$perPage);
-
-
-
-        return response()->ok(ServiceResource::collection($services));
+        return $this->ok(ServiceResource::collection($services));
     }
 
 
@@ -138,7 +143,7 @@ class ServiceController extends Controller
 
         $service = $this->serviceService->createService($serviceDTO);
 
-        return response()->created(new ServiceResource($service));
+        return $this->created(new ServiceResource($service));
     }
 
 
