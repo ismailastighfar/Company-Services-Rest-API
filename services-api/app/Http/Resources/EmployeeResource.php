@@ -14,10 +14,15 @@ class EmployeeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data =  [
             'id' => $this->id,
             'name' => $this->name,
-            'description' => $this->email,
+            'email' => $this->email,
             ];
+        $filteredData = array_filter($data, function ($value) {
+            return $value !== null;
+        });
+
+        return $filteredData;
     }
 }

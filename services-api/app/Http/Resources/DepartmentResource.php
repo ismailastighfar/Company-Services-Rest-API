@@ -23,12 +23,18 @@ class DepartmentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data =  [
             'id' => $this->id,
             'nameDep' => $this->nameDep,
             'description' => $this->description,
             'manager' => $this->manager,
             'services' => ServiceResource::collection($this->whenLoaded('services'))
         ];
+
+        $filteredData = array_filter($data, function ($value) {
+            return $value !== null;
+        });
+
+        return $filteredData;
     }
 }

@@ -32,13 +32,12 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function allWithRelationships(RequestDTO $requestDTO,$includeRelationships,$associatedFields)
     {
-        $requestDTO->selectedFields[] = "department_id";
-        $requestDTO->selectedFields[] = "employee_id";
 
         $query = QueryBuilder::for(Service::class)
             ->select($requestDTO->selectedFields)
             ->allowedSorts($requestDTO->sortField)
             ->defaultSort($requestDTO->sortField)
+            ->allowedFields($associatedFields)
             ->allowedIncludes($includeRelationships)
             ->paginate($requestDTO->perPage);
 

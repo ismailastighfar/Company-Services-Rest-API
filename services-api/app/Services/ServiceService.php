@@ -39,8 +39,11 @@ class ServiceService implements ServiceServiceInterface
         }
        $associatedFields = $apiKeysConfig[$apiKey];
 
+        $fields = $associatedFields['fields'];
+        $allowedFields = $associatedFields['allowed_fields'];
+
         if (empty( $requestDTO->selectedFields)) {
-            $requestDTO->selectedFields = $associatedFields;
+            $requestDTO->selectedFields = $fields;
         } else {
             $requestDTO->selectedFields = explode(',',  $requestDTO->selectedFields);
         }
@@ -50,7 +53,7 @@ class ServiceService implements ServiceServiceInterface
 
 
         if ($includeRelationships){
-          $result =  $this->serviceRepository->allWithRelationships($requestDTO,$includeRelationships,$associatedFields);
+          $result =  $this->serviceRepository->allWithRelationships($requestDTO,$includeRelationships,$allowedFields);
         }else{
             $result =  $this->serviceRepository->all($requestDTO);
         }
